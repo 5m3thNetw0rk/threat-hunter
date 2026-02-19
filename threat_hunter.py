@@ -1,5 +1,7 @@
 import re
 import sys
+import json
+from datetime import datetime
 
 def analyze_logs(filepath):
     print(f"[*] Starting Threat Hunt on: {filepath}...\n")
@@ -20,17 +22,23 @@ def analyze_logs(filepath):
                     if re.search(pattern, line, re.IGNORECASE):
                         ip_address = line.split(' ')[0]
                         threat_intel.append({
-                            "IP": ip_address,
-                            "Attack_Type": attack_type,
-                            "Raw_Log": line.strip()
+                            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                            "source_ip": ip_address,
+                            "threat_type": attack_type,
+                            "severity": "High" if attack_type in ["SQL_Injection", "XSS_Attempt"] else "Medium",
+                            "evidence": line.strip()
                         })
-                        
-        print("--- 🚨 ACTIONABLE INTELLIGENCE REPORT 🚨 ---")
+        
+        # 1. Print to console for immediate visibility
         for alert in threat_intel:
-            print(f"[!] THREAT DETECTED: {alert['Attack_Type']} from IP {alert['IP']}")
-            print(f"    Evidence: {alert['Raw_Log']}\n")
+            print(f"[!] {alert['threat_type']} detected from {alert['source_ip']}")
+
+        # 2. Export to JSON for system integration
+        output_file = "detected_threats.json"
+        with open(output_file, 'w') as jf:
+            json.dump(threat_intel, jf, indent=4)
             
-        print(f"[*] Total Threats Identified: {len(threat_intel)}")
+        print(f"\n[+] Success: {len(threat_intel)} threats exported to {output_file}")
 
     except FileNotFoundError:
         print("[!] Error: Log file not found.")
