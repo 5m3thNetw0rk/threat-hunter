@@ -3,6 +3,12 @@ import sys
 import json
 from datetime import datetime
 
+def send_soc_alert(threat_type, ip):
+    """Simulates an API call to a Slack or Discord Webhook for high-priority threats."""
+    timestamp = datetime.now().strftime("%H:%M:%S")
+    print(f"\n[📡 🚨 ESCALATION SENT] {timestamp} - ALERT: {threat_type} detected from {ip}")
+    print(f"[*] ACTION: Incident Response team notified via Webhook.")
+
 def analyze_logs(filepath):
     print(f"[*] Starting Threat Hunt on: {filepath}...\n")
     
@@ -21,24 +27,28 @@ def analyze_logs(filepath):
                 for attack_type, pattern in signatures.items():
                     if re.search(pattern, line, re.IGNORECASE):
                         ip_address = line.split(' ')[0]
-                        threat_intel.append({
+                        
+                        # Categorize Severity
+                        severity = "CRITICAL" if attack_type in ["SQL_Injection", "XSS_Attempt"] else "LOW"
+                        
+                        alert_data = {
                             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                             "source_ip": ip_address,
                             "threat_type": attack_type,
-                            "severity": "High" if attack_type in ["SQL_Injection", "XSS_Attempt"] else "Medium",
+                            "severity": severity,
                             "evidence": line.strip()
-                        })
-        
-        # 1. Print to console for immediate visibility
-        for alert in threat_intel:
-            print(f"[!] {alert['threat_type']} detected from {alert['source_ip']}")
+                        }
+                        threat_intel.append(alert_data)
 
-        # 2. Export to JSON for system integration
-        output_file = "detected_threats.json"
-        with open(output_file, 'w') as jf:
+                        # Logic: Only escalate CRITICAL threats to the SOC channel
+                        if severity == "CRITICAL":
+                            send_soc_alert(attack_type, ip_address)
+        
+        # Export findings
+        with open("detected_threats.json", "w") as jf:
             json.dump(threat_intel, jf, indent=4)
             
-        print(f"\n[+] Success: {len(threat_intel)} threats exported to {output_file}")
+        print(f"\n[+] Hunt Complete. {len(threat_intel)} events logged to detected_threats.json")
 
     except FileNotFoundError:
         print("[!] Error: Log file not found.")
