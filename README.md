@@ -1,15 +1,15 @@
-hreat-Hunter: Automated Log Analysis Tool
+# 🛡️ Automated Threat Hunter & Intel Enriched Parser
 
-**Threat-Hunter** is a Python-based security utility designed to parse raw web server logs and identify indicators of compromise (IoCs). 
+A Python-based security tool designed to parse server access logs, detect common attack patterns, and enrich findings with live Geographic and Reputation intelligence.
 
-Purpose
-Developed to support **Cyber Threat Intelligence (CTI)** and **Incident Response** workflows, this tool acts as a lightweight SIEM parser. It uses regular expressions to hunt for common adversary Tactics, Techniques, and Procedures (TTPs) within standard HTTP traffic.
+## 🚀 Key Features
+* **Signature-Based Detection:** Identifies SQL Injection, XSS, and Reconnaissance (Nmap/Dirb).
+* **Live CTI Integration:** Connects to **AlienVault OTX API** to check for known malicious actors (IoCs).
+* **Contextual Enrichment:** Maps IP addresses to geographic regions and internal network zones.
+* **Conditional Alerting:** Logic-driven escalation that prioritizes "Critical" threats for SOC notification.
+* **Secure Development:** Implements Python Virtual Environments and Environment Variable masking for API security.
 
-eatures & Detection Capabilities
-* **SQL Injection (SQLi):** Detects payload syntax (`OR 1=1`, `UNION`, `SELECT`).
-* **Cross-Site Scripting (XSS):** Identifies malicious `<script>` tags in URL parameters.
-* **Automated Reconnaissance:** Flags aggressive directory brute-forcing (e.g., Dirb) and automated port scanning (e.g., Nmap NSE scripts).
-
-Usage
-```bash
-python3 threat_hunter.py <path_to_log_file>
+## 🛠️ Tech Stack
+* **Language:** Python 3.x
+* **Libraries:** OTXv2, python-dotenv, re, json
+* **Threat Intel:** AlienVault Open Threat Exchange (OTX)
