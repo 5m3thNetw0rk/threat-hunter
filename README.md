@@ -10,16 +10,19 @@ graph TD
     A[Data Sources: Logs, Packets, Process] --> B{Normalization Engine}
     B -->|Structured Data| C[Active Hunting Layer]
     B -->|Unstructured Feed| D[Passive Hunting Layer]
+
     subgraph "Analysis Core"
-    C --> C1[Anomaly Detection]
-    C --> C2[Least Frequency Analysis]
-    C --> C3[Behavioral Analytics]
+        C --> C1[Anomaly Detection]
+        C --> C2[Least Frequency Analysis]
+        C --> C3[Behavioral Analytics]
     end
+
     subgraph "Intelligence & Mapping"
-    D --> D1[IOC Correlation]
-    D1 --> D2[Pyramid of Pain Mapping]
-    D2 --> E[MITRE ATT&CK TTPs]
+        D --> D1[IOC Correlation]
+        D1 --> D2[Pyramid of Pain Mapping]
+        D2 --> E[MITRE ATT&CK TTPs]
     end
+
     C --> F[Hunt Blueprint / Reporting]
     D --> F
     F --> G[Incident Response / Remediation]
