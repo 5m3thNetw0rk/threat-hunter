@@ -6,25 +6,27 @@ This repository is a collection of Python-based security tools designed to autom
 
 The following diagram illustrates how the components of this suite interact to provide a defense-in-depth posture:
 
-[ Network / System Logs ]        [ External Threat Data ]
-           |                             |
-           v                             v
-  +-----------------+           +-----------------------+
-  | threat_hunter.py| <-------> | AlienVault OTX API    |
-  | (Log Analysis)  |           | (Reputation Check)    |
-  +-----------------+           +-----------------------+
-           |                             |
-           | (Output Threats)            |
-           v                             |
-  +--------------------+        +-----------------------+
-  | rule_generator.py  | <----- |   Identify TTPs       |
-  | (Defense Automation)|       | (Pattern Matching)    |
-  +--------------------+        +-----------------------+
-           |
-           +---> [ firewall_blacklist.txt ] (Rapid Blocking)
-           +---> [ snort_rules.rules ]      (IDS Signature)
-
-
+```mermaid
+graph TD
+    A[Data Sources: Logs, Packets, Process] --> B{Normalization Engine}
+    B -->|Structured Data| C[Active Hunting Layer]
+    B -->|Unstructured Feed| D[Passive Hunting Layer]
+    
+    subgraph "Analysis Core"
+    C --> C1[Anomaly Detection]
+    C --> C2[Least Frequency Analysis]
+    C --> C3[Behavioral Analytics]
+    end
+    
+    subgraph "Intelligence & Mapping"
+    D --> D1[IOC Correlation]
+    D1 --> D2[Pyramid of Pain Mapping]
+    D2 --> E[MITRE ATT&CK TTPs]
+    end
+    
+    C & D --> F[Hunt Blueprint / Reporting]
+    F --> G[Incident Response / Remediation]
+    
 🛠️ Project Components
 
 1. Threat Intelligence & Triage (threat_hunter.py)
