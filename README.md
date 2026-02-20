@@ -8,6 +8,7 @@ A Python-based security tool designed to parse server access logs, detect common
 * **Contextual Enrichment:** Maps IP addresses to geographic regions and internal network zones.
 * **Conditional Alerting:** Logic-driven escalation that prioritizes "Critical" threats for SOC notification.
 * **Secure Development:** Implements Python Virtual Environments and Environment Variable masking for API security.
+* **Active Response HIDS:** A File Integrity Monitor that uses SHA-256 hashing to baseline critical files and automatically restores them from a secure backup if unauthorized tampering is detected.
 
 ## 🛠️ Tech Stack
 * **Language:** Python 3.x
