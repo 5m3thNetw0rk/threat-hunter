@@ -1,0 +1,1 @@
+alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS 80 (msg:"SQL Injection Attempt Detected"; content:"OR 1=1"; nocase; sid:1000001; rev:1;)
