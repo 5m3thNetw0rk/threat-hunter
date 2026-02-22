@@ -32,46 +32,44 @@ def get_geolocation(ip):
         pass
     return None
 
-def generate_report(ip, geo_data, timeline):
+def generate_report(ip, geo_data, timeline, suspicious_flags):
     """
-    Generates a formal Intelligence Brief in Markdown format.
+    Generates a formal Intelligence Brief in Markdown format with Heuristic Alerts.
     """
     report_name = "INTELLIGENCE_BRIEF.md"
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
-    # Ensure geo_data is a dictionary even if None
-    geo = geo_data if geo_data else {"city": "Unknown", "country": "Unknown", "isp": "Unknown", "as": "Unknown"}
+    geo = geo_data if geo_data else {"city": "Unknown", "country": "Unknown", "isp": "Unknown"}
 
     report_content = f"""# 🛡️ Threat Intelligence Brief
 **Date:** {timestamp}
 **Target IP:** `{ip}`
-**Severity:** HIGH (Multi-stage Attack Detected)
+**Severity:** CRITICAL (Obfuscation Detected)
 
 ## 🌎 1. Geolocation & Attribution
 * **Location:** {geo.get('city')}, {geo.get('country')}
 * **ISP/Organization:** {geo.get('isp')}
-* **ASN:** {geo.get('as')}
 
-## 🕰️ 2. Incident Timeline (Pivot Analysis)
+## 🕰️ 2. Incident Timeline (Contextual Analysis)
 | Source Log | Event Details |
 |------------|---------------|
 """
     for event in timeline:
-        if " | EVENT: " in event:
-            parts = event.split(" | EVENT: ")
-            source = parts[0].replace("LOG: ", "").strip()
-            details = parts[1].strip()
-            report_content += f"| `{source}` | {details} |\n"
-        else:
-            report_content += f"| `Unknown` | {event} |\n"
+        source = event['source']
+        detail = event['detail']
+        report_content += f"| `{source}` | {detail} |\n"
 
-    report_content += f"""
-## 📝 3. Analyst Summary
-The target IP `{ip}` was identified performing a multi-stage intrusion attempt. The sequence suggests an initial **Reconnaissance** phase, followed by **Credential Access** attempts, and finally **Application Layer Exploitation**.
+    if suspicious_flags:
+        report_content += "\n## ⚠️ 3. Anti-Forensics & Heuristic Alerts\n"
+        for flag in suspicious_flags:
+            report_content += f"* **ALERT:** {flag}\n"
 
-## 🛡️ 4. Recommended Actions
-1.  **Block IP:** Add `{ip}` to the edge firewall blacklist.
-2.  **Audit:** Review all logs for `{ip}` for the last 24 hours.
+    report_content += """
+## 📝 4. Analyst Summary
+The target IP was identified performing a multi-stage intrusion. High-fidelity detection rules caught an attempt at **Log Injection**. While the attacker attempted to frame a local IP for the successful login, the temporal proximity to the brute-force attempts confirms a successful breach.
+
+## 🛡️ 5. Recommended Actions
+1.  **Isolate Host:** Remove the target server from the network to prevent lateral movement.
+2.  **Verify Logs:** Inspect raw binary logs (wtmp) as text logs have been compromised.
 """
 
     with open(report_name, "w") as f:
@@ -80,41 +78,48 @@ The target IP `{ip}` was identified performing a multi-stage intrusion attempt. 
     return report_name
 
 def pivot_search(target_ip):
-    logs = ["syslog.log", "auth.log", "access.log"]
+    """
+    Pivots on a target IP but also monitors for contextual anomalies (Heuristics).
+    """
+    # Adding deceptive_auth.log to the search list
+    logs = ["syslog.log", "auth.log", "access.log", "deceptive_auth.log", "auth_audit.log"]
     timeline = []
+    suspicious_flags = []
 
-    print(f"\n[*] INVESTIGATION START: Pivoting on {target_ip}")
-    
+    print(f"\n[*] INVESTIGATION START: {target_ip}")
     geo_data = get_geolocation(target_ip)
-    geo_string = geo_data['full_string'] if geo_data else "Location Data Unavailable"
-    print(f"[*] THREAT INTEL ENRICHMENT: {geo_string}")
     print("=" * 75)
 
     for log_file in logs:
         if os.path.exists(log_file):
             print(f"[*] Analyzing {log_file}...")
             with open(log_file, "r") as f:
-                for line in f:
+                lines = f.readlines()
+                for i, line in enumerate(lines):
+                    # Standard detection for the Malicious IP
                     if target_ip in line:
-                        timeline.append(f"LOG: {log_file.ljust(10)} | EVENT: {line.strip()}")
-        else:
-            # Create the file if it doesn't exist to help the user
-            print(f"[!] {log_file} missing. Creating dummy version for simulation...")
-            with open(log_file, "w") as f:
-                f.write(f"Feb 22 10:00:00 Dummy entry for {target_ip}\n")
+                        timeline.append({"source": log_file, "detail": line.strip()})
+                        
+                        # --- HEURISTIC CHECK ---
+                        # If we find the attacker IP, look at the NEXT line.
+                        # If that next line contains "Accepted password" but NOT the attacker IP,
+                        # it's likely a Log Injection attempt to hide the breach.
+                        if i + 1 < len(lines):
+                            next_line = lines[i+1]
+                            if "Accepted password" in next_line and target_ip not in next_line:
+                                msg = f"LOG INJECTION DETECTED: A successful login immediately followed a failure from {target_ip} in {log_file}."
+                                suspicious_flags.append(msg)
+                                timeline.append({"source": log_file, "detail": f"SUSPICIOUS SUCCESS (IP Spoofed): {next_line.strip()}"})
 
-    print("-" * 75)
-    
     if not timeline:
-        print(f"[!] Warning: No timeline events found for {target_ip}. Report not generated.")
+        print(f"[!] No events found for {target_ip}.")
     else:
-        print(f"[+] Found {len(timeline)} events. Generating report...")
-        report_file = generate_report(target_ip, geo_data, timeline)
-        print(f"[+] SUCCESS: {report_file} has been updated.")
+        report_file = generate_report(target_ip, geo_data, timeline, suspicious_flags)
+        print(f"[+] Heuristic analysis complete. {len(suspicious_flags)} suspicious patterns found.")
+        print(f"[+] Updated report: {report_file}")
             
     print("=" * 75 + "\n")
 
 if __name__ == "__main__":
-    # Standardize on one IP for the simulation
-    ip_to_find = "192.168.1.50" 
-    pivot_search(ip_to_find)
+    # Standardizing on the IP from our adversary lab and logs
+    pivot_search("192.168.1.50")
