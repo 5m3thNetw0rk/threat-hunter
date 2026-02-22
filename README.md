@@ -1,70 +1,87 @@
 🛡️ Threat Hunter: Advanced Detection & Response Suite
 
-This repository is a collection of Python-based security tools designed to automate the lifecycle of cyber defense: from vulnerability scanning and real-time threat detection to automated incident response.
+This repository is a comprehensive Cyber Defense suite designed to automate the lifecycle of security operations: from vulnerability scanning and threat intelligence enrichment to Active Endpoint Response and Adversary Emulation.
 
 🏗️ Technical Architecture
 
-The following diagram illustrates how the components of this suite interact to provide a defense-in-depth posture:
+The suite operates across multiple layers of the OSI model, integrating local system telemetry with global threat intelligence.
 
-graph TD
-    A[Data Sources: Logs, Packets, Process] --> B{Normalization Engine}
-    B -->|Structured Data| C[Active Hunting Layer]
-    B -->|Unstructured Feed| D[Passive Hunting Layer]
+[ Network / System Logs ]        [ Endpoint Canary Vault ]
+           |                             |
+           v                             v
+  +-----------------+           +-----------------------+
+  | threat_hunter.py| <-------> | warden.py (HIDS)      |
+  | (Log Analysis)  |           | (Active Response)     |
+  +-----------------+           +-----------------------+
+           |                             |
+           | (Output Threats)            | (Forensic Data)
+           v                             v
+  +--------------------+        +-----------------------+
+  | rule_generator.py  | <----- | adversary_lab.py      |
+  | (Defense Automation)|       | (Attack Simulation)   |
+  +--------------------+        +-----------------------+
+           |
+           +---> [ firewall_blacklist.txt ] (Rapid Blocking)
+           +---> [ snort_rules.rules ]      (IDS Signature)
 
-    subgraph "Analysis Core"
-        C --> C1[Anomaly Detection]
-        C --> C2[Least Frequency Analysis]
-        C --> C3[Behavioral Analytics]
-    end
-
-    subgraph "Intelligence & Mapping"
-        D --> D1[IOC Correlation]
-        D1 --> D2[Pyramid of Pain Mapping]
-        D2 --> E[MITRE ATT&CK TTPs]
-    end
-
-    C --> F[Hunt Blueprint / Reporting]
-    D --> F
-    F --> G[Incident Response / Remediation]
-        
 🛠️ Project Components
 
-1. Threat Intelligence & Triage (threat_hunter.py)
+1. Active Endpoint Defense (warden.py)
 
-Domain: Threat Intelligence Analysis
+Domain: Host-Based Intrusion Detection (HIDS) & Incident Response.
 
-Function: Parses system logs using Regex to detect SQLi/XSS. Enriches data by querying the AlienVault OTX API to identify known malicious IP addresses.
+Function: Monitors "Canary Files" using SHA-256 hashing.
 
-2. Network Forensics (net_sniffer.py)
+Active Response: Upon detecting tampering (e.g., Ransomware simulation), it identifies the offending Process ID (PID) via psutil and executes Automated Remediation by restoring the file from a secure "Golden Image" backup.
 
-Domain: Traffic Analysis & DPI
+2. Adversary Simulation Lab (adversary_lab.py)
 
-Function: Utilizes Scapy to perform Deep Packet Inspection (DPI) at Layer 7. Detects unencrypted credential leaks and logs traffic to .pcap format for Wireshark analysis.
+Domain: Red Teaming & Security Validation.
 
-3. Vulnerability Management (vuln_parser.py)
+Function: Emulates multi-stage attacks including SSH Brute Force, Log Injection (to frame decoy IPs), and Ransomware file encryption. This ensures the detection scripts are calibrated correctly.
 
-Domain: Vulnerability Scanning
+3. Threat Intelligence & Triage (threat_hunter.py)
 
-Function: Automates the parsing of Nmap XML results to isolate critical CVEs and prioritize remediation tasks for engineering teams.
+Domain: CTI & Log Analysis.
 
-4. Host Integrity & Auto-Healing (fim.py)
+Function: Parses system logs to detect patterns like SQLi/XSS. Enriches data via AlienVault OTX API to identify known-malicious actors based on global reputation.
 
-Domain: Host-Based Intrusion Detection (HIDS)
+4. Network Forensics (net_sniffer.py)
 
-Function: Monitors critical system files using SHA-256 hashing. Includes "Active Response" logic to automatically restore tampered files from a secure backup.
+Domain: Traffic Analysis & DPI.
+
+Function: Utilizes Scapy for Deep Packet Inspection (DPI) at Layer 7. Identifies unencrypted credential leaks and logs traffic to .pcap format for Wireshark analysis.
 
 5. Automated Defense (rule_generator.py)
 
-Domain: Collaborative Defense & Signatures
+Domain: Collaborative Defense & Security Automation (SOAR).
 
-Function: Translates intelligence gathered from local logs into actionable firewall blacklists and Snort-compatible IDS rules.
+Function: Translates intelligence from threat_hunter.py into actionable firewall blacklists and Snort-compatible IDS rules.
 
-⚖️ Compliance & Reporting
+⚖️ Compliance & NIST Mapping
 
-Every project in this suite is designed to align with industry frameworks:
+This suite aligns with the NIST Cybersecurity Framework (CSF):
 
-NIST CSF: Maps to Identify, Protect, Detect, and Respond.
+Identify: vuln_parser.py (Vulnerability scanning)
 
-GDPR Article 32: Demonstrates technical measures for regular security testing and assessment.
+Protect: net_sniffer.py (Monitoring insecure protocols)
 
-Incident Documentation: See INCIDENT_REPORT_001.md for a sample post-mortem analysis.
+Detect: threat_hunter.py (Log monitoring)
+
+Respond/Recover: warden.py (Auto-healing and file restoration)
+
+🚀 Getting Started
+
+Clone the repository:
+
+git clone [https://github.com/5m3thNetw0rk/threat-hunter](https://github.com/5m3thNetw0rk/threat-hunter)
+cd threat-hunter
+
+
+Initialize the Defense:
+
+python3 warden.py
+
+
+Simulate an Attack:
+In a separate terminal, run python3 adversary_lab.py and select an attack profile to see the Warden and Hunter respond in real-time.
