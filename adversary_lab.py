@@ -1,55 +1,67 @@
-import os
 import time
-from datetime import datetime
+import os
 
-def log_injection_demo():
-    """
-    Simulates Log Injection by inserting a 'fake' successful login 
-    into a log file to mislead investigators.
-    """
+def simulate_log_injection():
+    """Simulates a multi-stage attack for investigator.py and threat_hunter.py"""
     log_file = "deceptive_auth.log"
     attacker_ip = "192.168.1.50"
-    fake_ip = "10.0.0.99" # Framing an innocent internal IP
-    
-    print(f"[*] Starting Log Injection on {log_file}...")
-    
-    with open(log_file, "w") as f:
-        # 1. Real malicious activity (Attacker IP)
-        f.write(f"Feb 22 10:00:01 [SSHD] Failed password for root from {attacker_ip}\n")
-        
-        # 2. THE INJECTION: Using a newline character to hide a fake entry
-        # This makes it look like the admin logged in from a different IP
-        injection = f"\nFeb 22 10:05:00 [SSHD] Accepted password for admin from {fake_ip}"
-        f.write(f"Feb 22 10:02:45 [SSHD] Failed password for root from {attacker_ip}{injection}\n")
+    victim_user = "admin"
+    decoy_ip = "10.0.0.99"
 
-    print(f"[!] Injection Complete. Check {log_file} to see how the lines look.")
+    print(f"[*] Starting Adversary Simulation against {log_file}...")
 
-def time_stomp_demo():
+    # Stage 1: The Brute Force Stress Test
+    # This generates volume to trigger threshold-based alerts (like in threat_hunter.py)
+    print("[!] Stage 1: Initiating High-Volume Brute Force...")
+    with open(log_file, "a") as f:
+        for i in range(1, 11):
+            timestamp = f"Feb 22 10:04:{i:02d}"
+            f.write(f"{timestamp} [SSHD] Failed password for {victim_user} from {attacker_ip} port 49282 ssh2\n")
+            time.sleep(0.05)
+
+    # Stage 2: The Log Injection & Framing
+    # We use a \n (newline) to create a fake 'Success' entry that looks like it came from a local IP
+    print("[!] Stage 2: Executing Log Injection & Framing...")
+    
+    injection_payload = (
+        f"Feb 22 10:05:00 [SSHD] Failed password for {victim_user} from {attacker_ip} port 49282 ssh2\n"
+        f"Feb 22 10:05:01 [SSHD] Accepted password for {victim_user} from {decoy_ip} port 49282 ssh2"
+    )
+
+    with open(log_file, "a") as f:
+        f.write(injection_payload + "\n")
+
+    print(f"[+] Attack complete. Log file '{log_file}' is now ready for investigation.")
+
+def simulate_ransomware_tamper():
     """
-    Simulates Time-Stomping by changing the 'Modified' time of a file
-    to a date in the past to move it outside the investigation window.
+    Simulates a Ransomware-style attack targeting the Canary Vault.
+    This is designed to trigger warden.py.
     """
-    target_file = "deceptive_auth.log"
+    target_file = "./canary_vault/passwords.txt"
     
-    # We want to set the file time to 2 years ago
-    past_year = 2024
-    past_date = datetime(past_year, 1, 1, 12, 0, 0)
-    past_timestamp = time.mktime(past_date.timetuple())
+    if not os.path.exists(target_file):
+        print("[!] Error: Canary file not found. Ensure warden.py is running first!")
+        return
+
+    print(f"[!] INITIATING STRESS TEST: Attempting to encrypt {target_file}...")
     
-    print(f"[*] Current File Time: {datetime.fromtimestamp(os.path.getmtime(target_file))}")
-    print(f"[*] Time-Stomping {target_file} to {past_year}...")
+    # Simulate malicious encryption by overwriting with 'random' data
+    with open(target_file, "w") as f:
+        f.write("0xDEADBEEF_ENCRYPTED_DATA_SHADOW_LOCK")
     
-    # os.utime(path, (atime, mtime))
-    os.utime(target_file, (past_timestamp, past_timestamp))
-    
-    new_time = datetime.fromtimestamp(os.path.getmtime(target_file))
-    print(f"[!] Success: {target_file} now reports a modified date of: {new_time}")
+    print("[+] File modified. Check the Warden terminal for the Active Response alert!")
 
 if __name__ == "__main__":
-    print("--- ADVERSARY ANTI-FORENSICS LAB ---")
-    log_injection_demo()
-    print("-" * 40)
-    time_stomp_demo()
-    print("-" * 40)
-    print("\n[PRO TIP] Now run 'ls -l deceptive_auth.log' in your terminal.")
-    print("Then run 'python3 investigator.py' and see if it catches the injected line!")
+    print("--- 🛡️ ADVERSARY SIMULATION MENU ---")
+    print("1. Multi-Stage Log Attack (Target: investigator.py / threat_hunter.py)")
+    print("2. Ransomware Simulation (Target: warden.py)")
+    
+    choice = input("\nSelect attack profile (1/2): ")
+    
+    if choice == "1":
+        simulate_log_injection()
+    elif choice == "2":
+        simulate_ransomware_tamper()
+    else:
+        print("[!] Invalid choice.")
