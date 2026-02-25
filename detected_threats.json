@@ -1,56 +1,11 @@
 [
     {
-        "timestamp": "2026-02-19 21:32:14",
-        "source_ip": "10.0.0.9",
-        "location": "Internal Network (UK)",
-        "reputation": "Lookup Error (Check Connection/API Key)",
-        "threat_type": "Dirb_Reconnaissance",
-        "severity": "LOW",
-        "evidence": "10.0.0.9 - - [19/Feb/2026:10:05:12] \"GET /admin_login.php HTTP/1.1\" 404 512 \"-\" \"dirb/2.22\""
-    },
-    {
-        "timestamp": "2026-02-19 21:32:14",
-        "source_ip": "10.0.0.9",
-        "location": "Internal Network (UK)",
-        "reputation": "Lookup Error (Check Connection/API Key)",
-        "threat_type": "Dirb_Reconnaissance",
-        "severity": "LOW",
-        "evidence": "10.0.0.9 - - [19/Feb/2026:10:05:13] \"GET /config.bak HTTP/1.1\" 404 512 \"-\" \"dirb/2.22\""
-    },
-    {
-        "timestamp": "2026-02-19 21:32:14",
-        "source_ip": "172.16.0.4",
-        "location": "Cloud Provider (US-East)",
+        "timestamp": "2026-02-24 22:00:36",
+        "source_ip": "192.168.1.50",
+        "location": "High-Risk/Unknown Region",
         "reputation": "Lookup Error (Check Connection/API Key)",
         "threat_type": "SQL_Injection",
         "severity": "CRITICAL",
-        "evidence": "172.16.0.4 - - [19/Feb/2026:10:20:05] \"GET /api/users?id=1' OR '1'='1 HTTP/1.1\" 500 230 \"-\" \"curl/7.68.0\""
-    },
-    {
-        "timestamp": "2026-02-19 21:32:14",
-        "source_ip": "172.16.0.4",
-        "location": "Cloud Provider (US-East)",
-        "reputation": "Lookup Error (Check Connection/API Key)",
-        "threat_type": "XSS_Attempt",
-        "severity": "CRITICAL",
-        "evidence": "172.16.0.4 - - [19/Feb/2026:10:21:10] \"GET /search?q=<script>alert(1)</script> HTTP/1.1\" 200 4012 \"-\" \"Mozilla/5.0\""
-    },
-    {
-        "timestamp": "2026-02-19 21:32:15",
-        "source_ip": "10.10.10.50",
-        "location": "Research Lab (DE)",
-        "reputation": "Lookup Error (Check Connection/API Key)",
-        "threat_type": "Nmap_Scanning",
-        "severity": "LOW",
-        "evidence": "10.10.10.50 - - [19/Feb/2026:10:30:00] \"GET / HTTP/1.1\" 200 1024 \"-\" \"Mozilla/5.0 (compatible; Nmap Scripting Engine)\""
-    },
-    {
-        "timestamp": "2026-02-19 21:32:49",
-        "source_ip": "141.98.10.19",
-        "location": "High-Risk/Unknown Region",
-        "reputation": "MALICIOUS (19 Pulses found)",
-        "threat_type": "Nmap_Scanning",
-        "severity": "CRITICAL",
-        "evidence": "141.98.10.19 - - [19/Feb/2026:12:00:00] \"GET /admin HTTP/1.1\" 401 512 \"-\" \"Nmap\""
+        "evidence": "192.168.1.50 - - [22/Feb/2026:10:15:30] \"GET /login.php?id=1%27%20OR%201=1\""
     }
 ]

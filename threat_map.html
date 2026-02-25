@@ -1,0 +1,23 @@
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Threat Map</title>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <style>#map { height: 600px; width: 100%; } body { font-family: sans-serif; }</style>
+    </head>
+    <body>
+        <h1>🌐 Adversary Origin Map</h1>
+        <div id="map"></div>
+        <script>
+            var map = L.map('map').setView([20, 0], 2);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            L.marker([-27.4766, 153.0166]).addTo(map).bindPopup('<b>Threat IP:</b> 1.1.1.1<br><b>Location:</b> South Brisbane, Australia');
+L.marker([39.03, -77.5]).addTo(map).bindPopup('<b>Threat IP:</b> 8.8.8.8<br><b>Location:</b> Ashburn, United States');
+L.marker([52.6171, 13.1207]).addTo(map).bindPopup('<b>Threat IP:</b> 185.220.101.42<br><b>Location:</b> Brandenburg, Germany');
+
+        </script>
+    </body>
+    </html>
+    
