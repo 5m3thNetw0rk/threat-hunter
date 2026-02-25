@@ -6,23 +6,22 @@ This repository is a comprehensive Cyber Defense suite designed to automate the 
 
 The suite operates across multiple layers of the OSI model, integrating local system telemetry with global threat intelligence.
 
-[ Network / System Logs ]        [ Endpoint Canary Vault ]
-           |                             |
-           v                             v
-  +-----------------+           +-----------------------+
-  | threat_hunter.py| <-------> | warden.py (HIDS)      |
-  | (Log Analysis)  |           | (Active Response)     |
-  +-----------------+           +-----------------------+
-           |                             |
-           | (Output Threats)            | (Forensic Data)
-           v                             v
-  +--------------------+        +-----------------------+
-  | rule_generator.py  | <----- | adversary_lab.py      |
-  | (Defense Automation)|       | (Attack Simulation)   |
-  +--------------------+        +-----------------------+
-           |
-           +---> [ firewall_blacklist.txt ] (Rapid Blocking)
-           +---> [ snort_rules.rules ]      (IDS Signature)
+       [ TELEMETRY SOURCES ]                 [ DETECTION ENGINE ]               [ ACTIVE RESPONSE ]
+    +-------------------------+          +-------------------------+        +-------------------------+
+    |  Network / System Logs  | -------> |    threat_hunter.py     | -----> |   rule_generator.py     |
+    +-------------------------+          +-------------------------+        +------------+------------+
+                                                    ^                                    |
+                                                    |                                    v
+    +-------------------------+          +----------+--------------+        +------------+------------+
+    |  Endpoint Canary Vault  | <------> |      warden.py (HIDS)   |        | firewall_blacklist.txt  |
+    +-------------------------+          +----------+--------------+        +------------+------------+
+                                                    |                                    |
+                                                    v                                    v
+    +-------------------------+          +-------------------------+        +-------------------------+
+    |    Adversary Simulation | <------> |     adversary_lab.py    |        |    snort_rules.rules    |
+    +-------------------------+          +-------------------------+        +-------------------------+
+
+
 
 🛠️ Project Components
 
