@@ -1,0 +1,5 @@
+INFO: 2026-02-25 14:00:05 - Container 'web-app' started normally.
+DEBUG: 2026-02-25 14:05:10 - User 'www-data' executed: ls /var/www/html
+WARN: 2026-02-25 14:10:22 - Suspicious Command: docker run --privileged -v /:/host_root alpine
+ERROR: 2026-02-25 14:12:00 - File Access: cat /etc/shadow through mounted volume /host_root
+INFO: 2026-02-25 14:15:45 - Container 'db-service' mounting /var/run/docker.sock
